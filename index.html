@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KURTARMA OPERASYONU — Sıfırdan Fizik Motoru</title>
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        background: #292524;
+        font-family: system-ui, sans-serif;
+      }
+      canvas {
+        /* Tam ekran; iç çözünürlük JS'te viewport'a eşitlenir (1:1 → bozulma yok) */
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        touch-action: none;
+      }
+      p {
+        position: fixed;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+        margin: 0;
+        text-align: center;
+        color: #78716c;
+        pointer-events: none;
+      }
+      a { color: #ec4899; pointer-events: auto; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <canvas id="game"></canvas>
+      <p>Sıfırdan motor • <a href="/matter.html">Matter.js versiyonu →</a></p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
