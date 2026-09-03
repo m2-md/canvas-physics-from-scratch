@@ -1,4 +1,3 @@
-
 # Oyun Fiziği Nasıl Çalışır? Canvas'ta Sıfırdan Bir Fizik Motoru Yazmak
 
 *Yerçekimi, çarpışma ve sapan mekaniğini kendimiz kodluyoruz — sonra da "gerçek projede ne kullanmalı?" sorusuna dürüst bir cevap veriyoruz.*
