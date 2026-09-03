@@ -1,32 +1,32 @@
-# KURTARMA OPERASYONU — Sıfırdan Fizik Motoru
+# RESCUE OPERATION — A Physics Engine From Scratch
 
-"Oyun Fiziği Nasıl Çalışır? Canvas'ta Sıfırdan Bir Fizik Motoru Yazmak" makalesinin
-çalışan kodu. İki şey içerir:
+The working code for the article "How Does Game Physics Work? Writing a Physics
+Engine From Scratch on Canvas". It contains three things:
 
-1. **Mini 2D fizik motoru** (`src/engine/`) — bağımlılıksız, ~120 satır:
-   Euler entegrasyonu, daire-daire çarpışma (impulse), duvar sekmesi, contact event'leri.
-2. **Sapan oyunu** (`src/main.ts`) — siyah topu çek-bırak ile fırlat, taş halkasını kır,
-   ortadaki pembe topu kurtar. Sert vuruş taşı kırar, yavaş vuruş seker.
-3. **Matter.js karşılaştırması** (`src/matter-demo.ts`) — aynı sahnenin hazır motorla hali.
+1. **Mini 2D physics engine** (`src/engine/`) — dependency-free, ~120 lines:
+   Euler integration, circle-circle collision (impulse), wall bounce, contact events.
+2. **Slingshot game** (`src/main.ts`) — fling the black ball with drag-and-release, break
+   the ring of stones, rescue the pink ball in the middle. A hard hit breaks a stone, a slow one bounces.
+3. **Matter.js comparison** (`src/matter-demo.ts`) — the same scene with an off-the-shelf engine.
 
-## Kurulum
+## Setup
 
 ```bash
 npm install
 ```
 
-## Çalıştırma
+## Running
 
 ```bash
 npm run dev
 ```
 
-- `http://localhost:5173/` → sıfırdan motor ile oyun
-- `http://localhost:5173/matter.html` → Matter.js versiyonu
+- `http://localhost:5173/` → the game with the from-scratch engine
+- `http://localhost:5173/matter.html` → the Matter.js version
 
-**Nasıl oynanır:** Siyah topa tıkla, çek, bırak. Çekiş yönünün tersine fırlar
-(sapan mantığı). Taşlar sadece hızlı vuruşta kırılır (eşik: 400 px/s); yavaş
-vuruşta top seker. Pembe topa dokununca kazanırsın.
+**How to play:** Click the black ball, pull, release. It flies in the direction
+opposite to the pull (slingshot logic). Stones only break on a fast hit
+(threshold: 400 px/s); on a slow hit the ball bounces. Touch the pink ball and you win.
 
 ## Test
 
@@ -34,32 +34,32 @@ vuruşta top seker. Pembe topa dokununca kazanırsın.
 npm test
 ```
 
-14 birim testi motorun fizik iddialarını doğrular: Euler entegrasyonu, statik
-cisimlerin hareketsizliği, duvar sekmesi (bounciness oranı), impulse çözümü,
-iç içe geçme düzeltmesi, "ayrılan cisimlere karışmama" kuralı ve contact
-event'lerinin şiddet raporu.
+14 unit tests verify the engine's physics claims: Euler integration, static
+bodies staying put, wall bounce (the bounciness ratio), impulse resolution,
+overlap correction, the "don't interfere with separating bodies" rule and the
+severity report of contact events.
 
-## Dosya yapısı
+## File layout
 
 ```
 src/
   engine/
-    vec.ts      # Vec2 yardımcıları (add, sub, scale, dot, normalize)
-    body.ts     # Body + createBody (invMass numarası)
-    world.ts    # World.step: entegrasyon → duvarlar → çarpışmalar
-  main.ts       # Oyun: sapan, taş halkası, kurallar (contact event'lerinde)
-  matter-demo.ts# Aynı sahne Matter.js ile
+    vec.ts      # Vec2 helpers (add, sub, scale, dot, normalize)
+    body.ts     # Body + createBody (the invMass trick)
+    world.ts    # World.step: integration → walls → collisions
+  main.ts       # Game: slingshot, ring of stones, rules (in the contact events)
+  matter-demo.ts# The same scene with Matter.js
 tests/
   engine.test.ts
 ```
 
-## Alınan dersler (makalede de anlatılır)
+## Lessons learned (also covered in the article)
 
-- Sürüklemede `pointermove`/`pointerup` **window'dan** dinlenir; canvas'tan
-  dinlerseniz canvas dışında bırakılan sapan takılı kalır.
-- Matter.js'te ince duvar + yüksek hız = **tunneling** (top duvarın içinden
-  geçer). Çözüm: kalın duvar + fırlatma hızına üst sınır.
+- While dragging, `pointermove`/`pointerup` are listened for **on window**; listen
+  on the canvas and a slingshot released outside the canvas stays stuck.
+- In Matter.js a thin wall + high speed = **tunneling** (the ball passes through
+  the wall). The fix: a thick wall + a cap on the launch speed.
 
-## Lisans
+## License
 
 MIT

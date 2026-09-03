@@ -1,7 +1,7 @@
 {
   "name": "canvas-physics-from-scratch",
   "version": "1.0.0",
-  "description": "Sıfırdan mini 2D fizik motoru + sapan oyunu (KURTARMA OPERASYONU) ve Matter.js karşılaştırması",
+  "description": "Lightweight 2D rigid-body physics engine built from scratch with circles, AABBs, impulse resolution, slingshot mechanics, and comparison against Matter.js.",
   "type": "module",
   "license": "MIT",
   "scripts": {

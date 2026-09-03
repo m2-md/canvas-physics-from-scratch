@@ -1,23 +1,23 @@
-// KURTARMA OPERASYONU — sapan oyunu.
-// Motor: src/engine/ (sıfırdan). Oyun kuralları: bu dosyada, contact event'lerinde.
+// RESCUE OPERATION — the slingshot game.
+// Engine: src/engine/ (from scratch). Game rules: in this file, in the contact events.
 import { createBody, type Body } from "./engine/body";
 import { World } from "./engine/world";
 import { type Vec2, vec, sub, scale, length } from "./engine/vec";
 
-// Ekran ne olursa olsun aynı his: kısa kenarı 600px'lik referansa oranla
+// Same feel on any screen: scale the short edge against a 600px reference
 let W = window.innerWidth;
 let H = window.innerHeight;
 const SCALE = Math.min(W, H) / 600;
 
-const LAUNCH_POWER = 6; // çekiş pikselini hıza çeviren katsayı
-const BREAK_SPEED = 400 * SCALE; // px/s — bundan yavaş vuruş taşı kırmaz
+const LAUNCH_POWER = 6; // factor that turns pull pixels into velocity
+const BREAK_SPEED = 400 * SCALE; // px/s — a slower hit will not break a stone
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 const ctx = canvas.getContext("2d")!;
 canvas.width = W;
 canvas.height = H;
 
-// --- Dünya kurulumu ---------------------------------------------------------
+// --- World setup ------------------------------------------------------------
 const world = new World(W, H, 900 * SCALE);
 
 const ball = world.add(
@@ -25,7 +25,7 @@ const ball = world.add(
 );
 const pink = world.add(createBody(W / 2, H / 2, 22 * SCALE, { static: true }));
 
-// Pembe topun etrafına taş halkası
+// Ring of stones around the pink ball
 const stones = new Set<Body>();
 const STONES = 10;
 for (let i = 0; i < STONES; i++) {
@@ -40,8 +40,8 @@ for (let i = 0; i < STONES; i++) {
   stones.add(stone);
 }
 
-// Pencere boyutu değişirse canvas ve dünya sınırlarını eşitle
-// (iç çözünürlük = viewport → ölçekleme yok → daireler daire kalır)
+// If the window is resized, match the canvas and the world bounds
+// (internal resolution = viewport → no scaling → circles stay circles)
 window.addEventListener("resize", () => {
   const oldCx = W / 2;
   const oldCy = H / 2;
@@ -51,7 +51,7 @@ window.addEventListener("resize", () => {
   canvas.height = H;
   world.width = W;
   world.height = H;
-  // Halkayı yeni merkeze taşı (her taşın açısını koruyarak)
+  // Move the ring to the new center (keeping each stone's angle)
   for (const s of stones) {
     const angle = Math.atan2(s.pos.y - oldCy, s.pos.x - oldCx);
     s.pos = vec(
@@ -62,7 +62,7 @@ window.addEventListener("resize", () => {
   pink.pos = vec(W / 2, H / 2);
 });
 
-// --- Oyun kuralları: motorda değil, contact event'lerinde -------------------
+// --- Game rules: not in the engine, in the contact events -------------------
 let won = false;
 
 world.onContact(({ a, b, speed }) => {
@@ -77,11 +77,11 @@ world.onContact(({ a, b, speed }) => {
 
   if (other === pink) {
     world.remove(pink);
-    won = true; // KURTARDIN!
+    won = true; // RESCUED!
   }
 });
 
-// --- Sapan (sling shot) -----------------------------------------------------
+// --- Slingshot --------------------------------------------------------------
 let dragging = false;
 let dragPoint: Vec2 = vec();
 
@@ -98,13 +98,13 @@ canvas.addEventListener("pointerdown", (e) => {
   if (length(sub(p, ball.pos)) < ball.radius * 2.5) {
     dragging = true;
     dragPoint = p;
-    ball.vel = vec(); // çekerken fizik topu etkilemesin
+    ball.vel = vec(); // physics must not move the ball while pulling
   }
 });
 
-// Dikkat: move ve up olayları window'dan dinlenir — parmak canvas dışına
-// kayarsa da çekiş devam eder, bırakış kaçmaz. (Canvas'tan dinlerseniz
-// dışarıda bırakılan sapan "takılı" kalır — denedim, kalıyor.)
+// Careful: move and up are listened for on window — the pull keeps going even
+// if the finger slides outside the canvas, and the release is never lost. (Listen
+// on the canvas and a slingshot released outside stays "stuck" — I tried it, it does.)
 window.addEventListener("pointermove", (e) => {
   if (dragging) dragPoint = toWorld(e);
 });
@@ -112,11 +112,11 @@ window.addEventListener("pointermove", (e) => {
 window.addEventListener("pointerup", () => {
   if (!dragging) return;
   dragging = false;
-  const pull = sub(ball.pos, dragPoint); // çekişin tersi = fırlatma yönü
+  const pull = sub(ball.pos, dragPoint); // opposite of the pull = launch direction
   ball.vel = scale(pull, LAUNCH_POWER);
 });
 
-// --- Parçacık efekti (taş kırılınca) ----------------------------------------
+// --- Particle effect (when a stone breaks) ----------------------------------
 interface Particle {
   pos: Vec2;
   vel: Vec2;
@@ -145,7 +145,7 @@ function updateParticles(dt: number) {
   particles = particles.filter((p) => p.life > 0);
 }
 
-// --- Çizim ------------------------------------------------------------------
+// --- Drawing ----------------------------------------------------------------
 function drawCircle(b: Body, color: string) {
   ctx.beginPath();
   ctx.arc(b.pos.x, b.pos.y, b.radius, 0, Math.PI * 2);
@@ -157,7 +157,7 @@ function draw() {
   ctx.fillStyle = "#f5f2eb";
   ctx.fillRect(0, 0, W, H);
 
-  // Sapan lastiği: oyuncu ne kadar güç biriktirdiğini gözüyle görür
+  // Slingshot band: the player sees with their own eyes how much power is stored
   if (dragging) {
     ctx.beginPath();
     ctx.moveTo(ball.pos.x, ball.pos.y);
@@ -183,26 +183,26 @@ function draw() {
   if (won) {
     ctx.font = "bold 42px system-ui, sans-serif";
     ctx.fillStyle = "#ec4899";
-    ctx.fillText("KURTARDIN! 🎉", W / 2, H / 2);
+    ctx.fillText("RESCUED! 🎉", W / 2, H / 2);
   } else {
     ctx.fillText(
-      "Siyah topu çek-bırak ile fırlat • Sert vuruş taşı kırar, yavaş vuruş seker",
+      "Drag and release to fling the black ball • A hard hit breaks a stone, a slow one bounces",
       W / 2,
       H - 40,
     );
   }
 }
 
-// --- Oyun döngüsü ------------------------------------------------------------
+// --- Game loop ---------------------------------------------------------------
 let last = performance.now();
 
 function frame(now: number) {
-  const dt = Math.min((now - last) / 1000, 1 / 30); // saniye cinsinden
+  const dt = Math.min((now - last) / 1000, 1 / 30); // in seconds
   last = now;
 
-  if (!dragging) world.step(dt); // 1. fiziği ilerlet
+  if (!dragging) world.step(dt); // 1. advance the physics
   updateParticles(dt);
-  draw(); // 2. ekrana çiz
+  draw(); // 2. draw to the screen
 
   requestAnimationFrame(frame);
 }

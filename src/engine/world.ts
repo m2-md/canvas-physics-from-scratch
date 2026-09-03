@@ -4,7 +4,7 @@ import { type Vec2, vec, add, sub, scale, length, dot, normalize } from "./vec";
 export interface ContactEvent {
   a: Body;
   b: Body;
-  speed: number; // normal boyunca yaklaşma hızı (px/s)
+  speed: number; // approach speed along the normal (px/s)
 }
 
 type ContactListener = (e: ContactEvent) => void;
@@ -40,15 +40,15 @@ export class World {
   }
 
   step(dt: number) {
-    // 1. Entegrasyon: yerçekimi → hız → konum
+    // 1. Integration: gravity → velocity → position
     for (const b of this.bodies) {
-      if (b.invMass === 0) continue; // statikler düşmez
+      if (b.invMass === 0) continue; // static bodies don't fall
       b.vel = add(b.vel, scale(this.gravity, dt));
       b.pos = add(b.pos, scale(b.vel, dt));
     }
-    // 2. Duvar çarpışmaları
+    // 2. Wall collisions
     for (const b of this.bodies) this.collideWalls(b);
-    // 3. Cisim-cisim çarpışmaları (her çift bir kez)
+    // 3. Body-body collisions (each pair once)
     for (let i = 0; i < this.bodies.length; i++) {
       for (let j = i + 1; j < this.bodies.length; j++) {
         this.collideBodies(this.bodies[i], this.bodies[j]);
@@ -79,27 +79,27 @@ export class World {
 
   private collideBodies(a: Body, b: Body) {
     const totalInvMass = a.invMass + b.invMass;
-    if (totalInvMass === 0) return; // iki statik cisim çarpışamaz
+    if (totalInvMass === 0) return; // two static bodies cannot collide
 
     const delta = sub(b.pos, a.pos);
     const dist = length(delta);
     const minDist = a.radius + b.radius;
-    if (dist >= minDist || dist === 0) return; // temas yok
+    if (dist >= minDist || dist === 0) return; // no contact
 
-    const normal = normalize(delta); // a'dan b'ye çarpışma yönü
+    const normal = normalize(delta); // collision direction from a to b
     const relVel = sub(b.vel, a.vel);
-    const approach = dot(relVel, normal); // normal boyunca yaklaşma hızı
-    if (approach > 0) return; // zaten ayrılıyorlar
+    const approach = dot(relVel, normal); // approach speed along the normal
+    if (approach > 0) return; // they are already separating
 
     this.emitContact(a, b, -approach);
 
-    // Impulse: çarpışmanın "şiddetini" tek sayıya indirger
+    // Impulse: reduces the collision's "severity" to a single number
     const e = Math.min(a.bounciness, b.bounciness);
     const impulse = (-(1 + e) * approach) / totalInvMass;
     a.vel = sub(a.vel, scale(normal, impulse * a.invMass));
     b.vel = add(b.vel, scale(normal, impulse * b.invMass));
 
-    // İç içe geçmeyi düzelt: herkes kütlesi oranında geri çekilir
+    // Fix the overlap: each body backs off in proportion to its mass
     const overlap = minDist - dist;
     a.pos = sub(a.pos, scale(normal, overlap * (a.invMass / totalInvMass)));
     b.pos = add(b.pos, scale(normal, overlap * (b.invMass / totalInvMass)));

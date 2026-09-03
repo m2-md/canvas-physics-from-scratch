@@ -1,15 +1,15 @@
-// Aynı sahnenin Matter.js versiyonu — "otomatik vites".
-// restitution = bizim bounciness, isStatic = bizim invMass = 0,
-// collisionStart = bizim onContact.
+// The Matter.js version of the same scene — the "automatic transmission".
+// restitution = our bounciness, isStatic = our invMass = 0,
+// collisionStart = our onContact.
 import Matter from "matter-js";
 
-// Ekran ne olursa olsun aynı his: kısa kenarı 600px'lik referansa oranla
+// Same feel on any screen: scale the short edge against a 600px reference
 let W = window.innerWidth;
 let H = window.innerHeight;
 const SCALE = Math.min(W, H) / 600;
 
-const BREAK_SPEED = 8 * SCALE; // Matter iç birimlerinde hız eşiği
-const MAX_SPEED = 30 * SCALE; // fırlatma hız sınırı (tunneling önlemi)
+const BREAK_SPEED = 8 * SCALE; // speed threshold in Matter's internal units
+const MAX_SPEED = 30 * SCALE; // launch speed cap (tunneling guard)
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 const ctx = canvas.getContext("2d")!;
@@ -23,8 +23,8 @@ const ball = Matter.Bodies.circle(W * 0.2, H * 0.75, 26 * SCALE, {
   restitution: 0.7,
 });
 const pink = Matter.Bodies.circle(W / 2, H / 2, 22 * SCALE, { isStatic: true });
-// Duvarlar KALIN (200px): hızlı cisimler ince duvarı "tünelleyip" kaçabilir.
-// Uzunlukları 10000px — pencere büyüse de kenarları kaplı tutar.
+// Walls are THICK (200px): fast bodies can "tunnel" through a thin wall and escape.
+// They are 10000px long — the edges stay covered even if the window grows.
 const walls = [
   Matter.Bodies.rectangle(W / 2, -100, 10000, 200, { isStatic: true }),
   Matter.Bodies.rectangle(W / 2, H + 100, 10000, 200, { isStatic: true }),
@@ -33,7 +33,7 @@ const walls = [
 ];
 Matter.Composite.add(engine.world, [ball, pink, ...walls]);
 
-// Taş halkası
+// Ring of stones
 const stones = new Set<Matter.Body>();
 const STONES = 10;
 for (let i = 0; i < STONES; i++) {
@@ -48,7 +48,7 @@ for (let i = 0; i < STONES; i++) {
   Matter.Composite.add(engine.world, stone);
 }
 
-// Pencere boyutu değişirse canvas'ı, duvarları ve halkayı eşitle
+// If the window is resized, match the canvas, the walls and the ring
 window.addEventListener("resize", () => {
   const oldCx = W / 2;
   const oldCy = H / 2;
@@ -90,7 +90,7 @@ Matter.Events.on(engine, "collisionStart", (event) => {
   }
 });
 
-// Sapan
+// Slingshot
 let dragging = false;
 let dragPoint = { x: 0, y: 0 };
 
@@ -119,13 +119,13 @@ window.addEventListener("pointerup", () => {
   dragging = false;
   const pull = Matter.Vector.sub(ball.position, dragPoint);
   let vel = Matter.Vector.mult(pull, 0.15);
-  // Hız sınırı: aşırı hızlı cisimler çarpışma testini atlayabilir (tunneling)
+  // Speed cap: overly fast bodies can skip the collision test (tunneling)
   const speed = Matter.Vector.magnitude(vel);
   if (speed > MAX_SPEED) vel = Matter.Vector.mult(vel, MAX_SPEED / speed);
   Matter.Body.setVelocity(ball, vel);
 });
 
-// Çizim + döngü
+// Drawing + loop
 function drawBody(b: Matter.Body, color: string) {
   ctx.beginPath();
   ctx.arc(b.position.x, b.position.y, b.circleRadius ?? 0, 0, Math.PI * 2);
@@ -161,10 +161,10 @@ function frame(now: number) {
   if (won) {
     ctx.font = "bold 42px system-ui, sans-serif";
     ctx.fillStyle = "#ec4899";
-    ctx.fillText("KURTARDIN! (Matter.js) 🎉", W / 2, H / 2);
+    ctx.fillText("RESCUED! (Matter.js) 🎉", W / 2, H / 2);
   } else {
     ctx.fillText(
-      "Matter.js versiyonu — aynı sahne, hazır motor",
+      "Matter.js version — the same scene, off-the-shelf engine",
       W / 2,
       H - 40,
     );
