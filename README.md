@@ -1,5 +1,9 @@
 # RESCUE OPERATION — A Physics Engine From Scratch
 
+<!-- LINKS:BEGIN — üretildi: scripts/sync-repo-links.py · elle düzenleme -->
+**▶ [Live demo](https://m2-md.github.io/canvas-physics-from-scratch/)** · [Source](https://github.com/m2-md/canvas-physics-from-scratch)
+<!-- LINKS:END -->
+
 The working code for the article "How Does Game Physics Work? Writing a Physics
 Engine From Scratch on Canvas". It contains three things:
 
