@@ -4,6 +4,9 @@
 **▶ [Live demo](https://m2-md.github.io/canvas-physics-from-scratch/)** · [Source](https://github.com/m2-md/canvas-physics-from-scratch)
 <!-- LINKS:END -->
 
+> A lightweight 2D rigid-body physics engine built from scratch — circles, wall bounce,
+> impulse resolution and a slingshot game — compared against Matter.js.
+
 The working code for the article "How Does Game Physics Work? Writing a Physics
 Engine From Scratch on Canvas". It contains three things:
 
@@ -63,6 +66,14 @@ tests/
   on the canvas and a slingshot released outside the canvas stays stuck.
 - In Matter.js a thin wall + high speed = **tunneling** (the ball passes through
   the wall). The fix: a thick wall + a cap on the launch speed.
+
+## Tech stack
+
+- TypeScript
+- Vite
+- Vitest
+- HTML5 Canvas 2D
+- Matter.js (comparison demo only)
 
 ## License
 
