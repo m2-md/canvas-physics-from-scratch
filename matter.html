@@ -31,9 +31,41 @@
         pointer-events: none;
       }
       a { color: #ec4899; pointer-events: auto; }
+      .mkare-demo-bar {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(24, 24, 27, 0.88);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 12px;
+        line-height: 1;
+        color: #e7e5e4;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      }
+      .mkare-demo-bar a {
+        color: #f472b6;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .mkare-demo-bar a:hover { text-decoration: underline; }
+      .mkare-demo-bar .sep { color: #57534e; }
     </style>
   </head>
   <body>
+    <nav class="mkare-demo-bar" aria-label="Article and resources">
+      <a href="https://javascript.plainenglish.io/how-game-physics-works-building-a-2d-physics-engine-from-scratch-in-canvas-5cd26416ddb8?source=friends_link&sk=f9c8048fe5b2d513b3c0d26127e97fb4" target="_blank" rel="noopener">Read Deep Dive (Free)</a>
+      <span class="sep">·</span>
+      <a href="https://www.buymeacoffee.com/mkare/e/599265" target="_blank" rel="noopener">Get Starter Kit</a>
+      <span class="sep">·</span>
+      <a href="https://github.com/m2-md/canvas-physics-from-scratch" target="_blank" rel="noopener">GitHub</a>
+    </nav>
     <main>
       <canvas id="game"></canvas>
       <p>Matter.js • <a href="/">← Engine-from-scratch version</a></p>
